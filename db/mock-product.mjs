@@ -5,5 +5,11 @@ let products = [
         price: 5.99,
         created: new Date(),
     },
+    {
+        id: 2,
+        name: "Nuggies",
+        price: 4.99,
+        created: new Date(),
+    },
 ];
 export { products }
