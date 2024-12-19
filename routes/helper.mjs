@@ -1,7 +1,7 @@
-const success = (message, data) =>{
+const success = (message, data) => {
     return {
-        message : message,
-            data : data,
+        message: message,
+        data: data,
     };
 };
 
