@@ -4,5 +4,11 @@ const success = (message, data) => {
         data: data,
     };
 };
+const getUniqueId = (products) => {
 
-export { success };
+    const productsIds = products.map((product) => product.id);
+    const maxId = productsIds.reduce((a, b) => Math.max(a, b));
+    return maxId + 1;
+};
+
+export { success, getUniqueId };
