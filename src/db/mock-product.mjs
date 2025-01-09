@@ -25,7 +25,7 @@ let products = [
     },
     {
         id: 5,
-        name: "Mc Nuggets",
+        name: "Nuggies",
         price: 3.49,
         created: new Date(),
     },
