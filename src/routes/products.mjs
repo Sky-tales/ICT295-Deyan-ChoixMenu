@@ -1,44 +1,51 @@
 import express from "express";
-
-import {getProduct, products, removeProduct, updateProduct} from "../db/mock-product.mjs";
-
 import { success, getUniqueId } from "./helper.mjs";
 import {Product} from "../db/sequelize.mjs";
-import {Model as Products} from "sequelize";
+
 
 const productsRouter = express();
 
 productsRouter.get("/", (req, res) => {
     Product.findAll().then((products) => {
     const message = `La liste des produits a bien été récupérée.`;
-    res.json(success(message, products));});
+    res.json(success(message, products));
+    })
+        .catch((error) =>{
+            const message = "La liste des produits n'a pas pu être récupérée. Merci de réessayer dans quelques instants."
+            res.status(500).json({ message, data: error });
+        });
 });
 
 productsRouter.get("/:id", (req, res) => {
-    /*const productId = req.params.id;
-    const product = products.find((product) => product.id == productId);*/
     Product.findByPk(req.params.id).then((product) =>{
+        if (product === null) {
+            const message = "Le produit demandé n'existe pas. Merci de réessayer avec un autre identifiant.";
+            return res.status(404).json({message});
+        }
         const message = `Le produit dont l'id vaut ${product.id} a bien été récupéré.`;
         res.json(success(message, product));
+    })
+        .catch((error) =>{
+        const message = "Le produit n'a pas pu être récupérée. Merci de réessayer dans quelques instants."
+        res.status(500).json({ message, data: error });
     });
 
 });
 
 productsRouter.post("/", (req, res) => {
-    /*const id = getUniqueId(products);
-    const createdProduct = { ...req.body, ...{ id: id, created: new Date() } };
-    products.push(createdProduct);*/
-    Product.create(req.body).then((createdProduct) => {
+    Product.create(req.body).then((createdProducts) => {
         const message = `Le produit ${createdProduct.name} a bien été créé !`;
         res.json(success(message, createdProduct));
-    });
+    })
+        .catch((error) =>{
+            const message = "Le produit n'a pas pu être ajouté. Merci de réessayer dans quelques instants.";
+            res.status(500).json({message,data:error});
+        })
+    ;
 
 });
 
 productsRouter.delete("/:id", (req, res) => {
-    /*const productId = req.params.id;
-    let deletedProduct = getProduct(productId);
-    removeProduct(productId);*/
 Product.findByPk(req.params.id).then((deletedProduct) =>{
     Product.destroy({
         where: {id: deletedProduct.id},
@@ -51,19 +58,23 @@ Product.findByPk(req.params.id).then((deletedProduct) =>{
 
 productsRouter.put("/:id", (req, res) => {
     const productId = req.params.id;
-    const product = getProduct(productId);
+    Product.update(req.body, {where: {id: productId}})
+        .then((_)=>{
+            return Product.findByPk(productId)
+                .then((updateProduct)=>{
+                    if(updateProduct === null){
+                        const message = "Le produit demandé n'existe pas. Merci de réessayer avec un autre identifiant.";
+                        return res.status(404).json({message});
+                    }
+                const message = `Le produit ${updatedProduct.name} dont l'id vaut ${productId} a été mis à jour avec succès !`;
+                res.json(success(message, updatedProduct));
+        });
+        })
+        .catch((error)=>{
+            const message = "Le produit n'a pas pu être mis à jour. Merci de réessayer dans quelques instants.";
+            res.status(500).json({message})
+        });
 
-// A noter que la propriété 'created' n'étant pas modifiée, sera conservée telle quelle.
-    const updatedProduct = {
-        id: productId,
-        ...req.body,
-        created: product.created,
-    };
-    updateProduct(productId, updatedProduct);
-
-    const message = `Le produit ${updatedProduct.name} dont l'id vaut ${productId} a été mis à jour avec succès !`;
-
-    res.json(success(message, updatedProduct));
 });
 
 

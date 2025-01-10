@@ -25,6 +25,12 @@ app.get("/api/", (req, res)=>{
 import { productsRouter } from "./routes/products.mjs";
 app.use("/api/products", productsRouter);
 
+app.use(({ res }) => {
+    const message =
+        "Impossible de trouver la ressource demandée ! Vous pouvez essayer une autre URL.";
+    res.status(404).json(message);
+});
+
 app.listen(port, () => {
     console.log(`Example app listening on port http://localhost:${port}`)
 });
